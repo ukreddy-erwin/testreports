@@ -18,6 +18,14 @@ def validate(date_text):
     except ValueError:
         return False
 
+def extractSubString(fullstring,substring):
+    if substring in fullstring:
+        fullstring=fullstring.split(substring)[1]
+        if "," in fullstring:
+            fullstring = fullstring.split(",")[0]
+    else:
+        fullstring=""
+    return fullstring
 
 def updateXMLGEO(filename):
     tree=obj.ElementTree(file=filename)
@@ -66,7 +74,41 @@ def updateXMLACT(filename):
 
     with open(filename,"wb") as fileupdate:
         tree.write(fileupdate)
+        
+def updateXMLFEA(filename):
+    tree=obj.ElementTree(file=filename)
+    root = tree.getroot()
+    for item in root.iter("item"):
+        child = item.find('Username')
+        lc = extractSubString(child.text,"LC:")
+        RE_TY = extractSubString(child.text,"RE_TY:")
+        RE_DB = extractSubString(child.text,"RE_DB:")
+        #print(lc,bn)
+        item.remove(child)
+        new_child1 = obj.SubElement(item, 'license')
+        new_child1.text = lc
+        new_child2 = obj.SubElement(item, 'RE_TY')
+        new_child2.text = RE_TY
+        new_child3 = obj.SubElement(item, 'RE_DB')
+        new_child3.text = RE_DB
+        StartDate = item.find('StartDate')
+        StartDate.text = str(mariadb_date_format(StartDate.text))
+        EndDate = item.find('EndDate')
+        EndDate.text = str(mariadb_date_format(EndDate.text))
+        Created = item.find('Created')
+        Created.text = str(mariadb_date_format(Created.text))
+        Modified = item.find('Modified')
+        Modified.text = str(mariadb_date_format(Modified.text))
+    
+    tree=obj.ElementTree(root)
+
+    with open(filename,"wb") as fileupdate:
+        tree.write(fileupdate)
+
+
 
 if __name__=="__main__":
-    updateXMLACT(r"C:\Users\UdayKiranReddy\Downloads\ACT_7095_5539_8_1_2020_8_31_2020.XML")
-    updateXMLGEO(r"C:\Users\UdayKiranReddy\Downloads\GEO_7095_5539_8_1_2020_8_31_2020.XML")
+    #updateXMLACT(r"C:\Users\UdayKiranReddy\Downloads\ACT_7095_5539_8_1_2020_8_31_2020.XML")
+    #updateXMLGEO(r"C:\Users\UdayKiranReddy\Downloads\GEO_7095_5539_8_1_2020_8_31_2020.XML")
+    #updateXMLGEO(r"C:\Users\UdayKiranReddy\Downloads\ENV_7095_5539_8_1_2020_8_31_2020.XML")
+    updateXMLFEA(r"C:\Users\UdayKiranReddy\Downloads\FEA_7095_5539_8_1_2020_8_31_2020.XML")
