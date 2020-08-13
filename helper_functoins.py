@@ -5,7 +5,7 @@ def mariadb_date_format(sDate):
     sDate = sDate.strip()
     if validate(sDate):
         #sDate = '3/1/2020 1:04:46 PM'
-        d = datetime.datetime.strptime(sDate,'%d/%m/%Y %I:%M:%S %p')
+        d = datetime.datetime.strptime(sDate,'%m/%d/%Y %I:%M:%S %p')
         return d
     else:
         return sDate
@@ -13,7 +13,7 @@ def mariadb_date_format(sDate):
 
 def validate(date_text):
     try:
-        datetime.datetime.strptime(date_text, '%d/%m/%Y %I:%M:%S %p')
+        datetime.datetime.strptime(date_text, '%m/%d/%Y %I:%M:%S %p')
         return True
     except ValueError:
         return False
@@ -108,7 +108,8 @@ def updateXMLFEA(filename):
 
 
 if __name__=="__main__":
-    #updateXMLACT(r"C:\Users\UdayKiranReddy\Downloads\ACT_7095_5539_8_1_2020_8_31_2020.XML")
-    #updateXMLGEO(r"C:\Users\UdayKiranReddy\Downloads\GEO_7095_5539_8_1_2020_8_31_2020.XML")
-    #updateXMLGEO(r"C:\Users\UdayKiranReddy\Downloads\ENV_7095_5539_8_1_2020_8_31_2020.XML")
-    updateXMLFEA(r"C:\Users\UdayKiranReddy\Downloads\FEA_7095_5539_8_1_2020_8_31_2020.XML")
+    xml_folder = r"C:\temp"
+    updateXMLACT(xml_folder + r"\ACT_7095_5539_8_1_2020_8_31_2020.XML")
+    updateXMLGEO(xml_folder + r"\GEO_7095_5539_8_1_2020_8_31_2020.XML")
+    updateXMLGEO(xml_folder + r"\ENV_7095_5539_8_1_2020_8_31_2020.XML")
+    updateXMLFEA(xml_folder + r"\FEA_7095_5539_8_1_2020_8_31_2020.XML")
