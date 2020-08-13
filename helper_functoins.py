@@ -1,11 +1,25 @@
 import xml.etree.ElementTree as obj
 import datetime
 import mariadb
+import glob
+
+import datetime,logging
 
 #pip3 install mariadb
 
+logging.basicConfig(filename='DBImport_Log.log',level=logging.INFO)
+def WriteLog(str1):
+    d = datetime.datetime.now()
+    print(d," : ",str1)
+    logging.info(str(d)+" : "+str1)
+
 def process_path(sFile):
     return sFile.replace('\\','/')
+
+def removeLastSlash(st):
+    if st[-1] == "/" or st[-1] == "\\":
+        st = st[:-1]
+    return st
 
 def mariadb_date_format(sDate):
     sDate = sDate.strip()
@@ -33,6 +47,16 @@ def extractSubString(fullstring,substring):
         fullstring=""
     return fullstring
 
+def updateXML(element,sType):
+    if sType == "GEO":
+        updateXMLGEO(element)
+    if sType == "ACT":
+        updateXMLACT(element)
+    if sType == "FEA":
+        updateXMLFEA(element)
+    if sType == "ENV":
+        updateXMLENV(element)
+        
 def updateXMLGEO(filename):
     tree=obj.ElementTree(file=filename)
     root = tree.getroot()
@@ -126,30 +150,38 @@ def importXML(xml_file,table):
             #xml_file = "C:/temp/GEO_7095_5539_8_1_2020_8_31_2020.XML"
             #table = "dmlicensedata.geo"
             load_xml = "LOAD XML INFILE '"+ xml_file +"' INTO TABLE "+ table +" ROWS IDENTIFIED BY '<item>'"
+            WriteLog("Executing: "+ load_xml)
             cur.execute(load_xml) 
         except mariadb.Error as e: 
-            print(f"Error: {e}")
+            WriteLog(f"Error: {e}")
 
         conn.commit() 
         conn.close()
-        print("Processing ended,connection closed for: "+xml_file)
+        WriteLog("Processing ended,connection closed for: "+xml_file)
     except mariadb.Error as e:
-        print(f"Error connecting to MariaDB Platform: {e}")
+        WriteLog(f"Error connecting to MariaDB Platform: {e}")
         sys.exit(1)
 
+def processXML(sFolder,sType):
+    elements = glob.glob(sFolder+"\\"+ sType +"_*.xml")
+    WriteLog("files found with " + sType + ":"+str(len(elements)))
+    print(elements)
+    for element in elements:
+        if len(element)> len(element.replace(" ", "")):
+            WriteLog("Error: Spaces in the filename are not supported")
+        else:
+            element = process_path(element)
+            WriteLog("Processing:" + element)
+            importXML(element,"dmlicensedata."+sType)
+            updateXML(element,"dmlicensedata."+sType)
 
 if __name__=="__main__":
     xml_folder = r"C:\temp"
-    print("Started Preprocessing XML files")
-    updateXMLACT(xml_folder + r"\ACT_7095_5539_8_1_2020_8_31_2020.XML")
-    updateXMLGEO(xml_folder + r"\GEO_7095_5539_8_1_2020_8_31_2020.XML")
-    updateXMLGEO(xml_folder + r"\ENV_7095_5539_8_1_2020_8_31_2020.XML")
-    updateXMLFEA(xml_folder + r"\FEA_7095_5539_8_1_2020_8_31_2020.XML")
-    print("Completed Preprocessing XML files")
-    print("Started importing XML files to Database")
-    importXML(xml_folder + r"\GEO_7095_5539_8_1_2020_8_31_2020.XML","dmlicensedata.geo")
-    importXML(xml_folder + r"\ACT_7095_5539_8_1_2020_8_31_2020.XML","dmlicensedata.act")
-    importXML(xml_folder + r"\ENV_7095_5539_8_1_2020_8_31_2020.XML","dmlicensedata.env")
-    importXML(xml_folder + r"\FEA_7095_5539_8_1_2020_8_31_2020.XML","dmlicensedata.fea")    
-    print("Completed importing XML files to Database")
+    xml_folder = removeLastSlash(xml_folder)
+    WriteLog("Started Preprocessing XML files")
+    processXML(xml_folder,"GEO")
+    processXML(xml_folder,"FEA")
+    processXML(xml_folder,"ACT")
+    processXML(xml_folder,"ENV")
+    WriteLog("Completed importing XML files to Database")
     
