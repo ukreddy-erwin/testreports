@@ -2,6 +2,7 @@ import xml.etree.ElementTree as obj
 import datetime
 import mariadb
 import glob
+import sys
 
 import datetime,logging
 
@@ -151,9 +152,9 @@ def importXML(xml_file,table):
     try:
         xml_file = process_path(xml_file)
         conn = mariadb.connect(
-            user="root",
-            password="Notallowed1!",
-            host="172.168.56.3",
+            user="admin",
+            password="password",
+            host="10.1.85.80",
             database="dmlicensedata")
         cur = conn.cursor() 
 
@@ -161,7 +162,7 @@ def importXML(xml_file,table):
         try:
             #xml_file = "C:/temp/GEO_7095_5539_8_1_2020_8_31_2020.XML"
             #table = "dmlicensedata.geo"
-            load_xml = "LOAD XML INFILE '"+ xml_file +"' INTO TABLE "+ table +" ROWS IDENTIFIED BY '<item>'"
+            load_xml = "LOAD XML LOCAL INFILE '"+ xml_file +"' INTO TABLE "+ table +" ROWS IDENTIFIED BY '<item>'"
             WriteLog("Executing: "+ load_xml)
             cur.execute(load_xml) 
         except mariadb.Error as e: 

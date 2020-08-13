@@ -1,4 +1,7 @@
 https://mariadb.com/kb/en/how-to-convert-datetime-format-while-importing-xml/
+https://mariadb.com/kb/en/load-data-infile/
+https://www.digitalocean.com/community/tutorials/how-to-install-mariadb-on-ubuntu-20-04
+https://stackoverflow.com/questions/1559955/host-xxx-xx-xxx-xxx-is-not-allowed-to-connect-to-this-mysql-server/1559992#1559992
 
 UI utility to connect schema: dbschema.com
 
@@ -111,7 +114,7 @@ ALTER TABLE `geo`
 -------------------------------------
 latest:
 --------
-CREATE TABLE `geo` (
+CREATE TABLE `GEO` (
 	`Id` VARCHAR(50) NOT NULL DEFAULT '' COLLATE 'latin1_swedish_ci',
 	`ComputerID` TINYTEXT NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
 	`City` TINYTEXT NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
@@ -137,7 +140,7 @@ COLLATE='latin1_swedish_ci'
 ENGINE=InnoDB
 ;
 
-CREATE TABLE `act` (
+CREATE TABLE `ACT` (
 	`Id` VARCHAR(50) NOT NULL DEFAULT '' COLLATE 'latin1_swedish_ci',
 	`ComputerID` TINYTEXT NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
 	`Location` TINYTEXT NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
@@ -160,7 +163,7 @@ COLLATE='latin1_swedish_ci'
 ENGINE=InnoDB
 ;
 
-CREATE TABLE `env` (
+CREATE TABLE `ENV` (
 	`Id` VARCHAR(50) NOT NULL DEFAULT '' COLLATE 'latin1_swedish_ci',
 	`ComputerID` TINYTEXT NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
 	`Location` TINYTEXT NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
@@ -192,7 +195,7 @@ COLLATE='latin1_swedish_ci'
 ENGINE=InnoDB
 ;
 
-CREATE TABLE `fea` (
+CREATE TABLE `FEA` (
 	`Id` VARCHAR(50) NOT NULL DEFAULT '' COLLATE 'latin1_swedish_ci',
 	`ComputerID` TINYTEXT NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
 	`Location` TINYTEXT NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
