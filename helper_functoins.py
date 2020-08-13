@@ -1,5 +1,11 @@
 import xml.etree.ElementTree as obj
 import datetime
+import mariadb
+
+#pip3 install mariadb
+
+def process_path(sFile):
+    return sFile.replace('\\','/')
 
 def mariadb_date_format(sDate):
     sDate = sDate.strip()
@@ -105,11 +111,45 @@ def updateXMLFEA(filename):
     with open(filename,"wb") as fileupdate:
         tree.write(fileupdate)
 
+def importXML(xml_file,table):
+    try:
+        xml_file = process_path(xml_file)
+        conn = mariadb.connect(
+            user="root",
+            password="Notallowed1!",
+            host="172.168.56.3",
+            database="dmlicensedata")
+        cur = conn.cursor() 
+
+        #insert information 
+        try:
+            #xml_file = "C:/temp/GEO_7095_5539_8_1_2020_8_31_2020.XML"
+            #table = "dmlicensedata.geo"
+            load_xml = "LOAD XML INFILE '"+ xml_file +"' INTO TABLE "+ table +" ROWS IDENTIFIED BY '<item>'"
+            cur.execute(load_xml) 
+        except mariadb.Error as e: 
+            print(f"Error: {e}")
+
+        conn.commit() 
+        conn.close()
+        print("Processing ended,connection closed for: "+xml_file)
+    except mariadb.Error as e:
+        print(f"Error connecting to MariaDB Platform: {e}")
+        sys.exit(1)
 
 
 if __name__=="__main__":
     xml_folder = r"C:\temp"
+    print("Started Preprocessing XML files")
     updateXMLACT(xml_folder + r"\ACT_7095_5539_8_1_2020_8_31_2020.XML")
     updateXMLGEO(xml_folder + r"\GEO_7095_5539_8_1_2020_8_31_2020.XML")
     updateXMLGEO(xml_folder + r"\ENV_7095_5539_8_1_2020_8_31_2020.XML")
     updateXMLFEA(xml_folder + r"\FEA_7095_5539_8_1_2020_8_31_2020.XML")
+    print("Completed Preprocessing XML files")
+    print("Started importing XML files to Database")
+    importXML(xml_folder + r"\GEO_7095_5539_8_1_2020_8_31_2020.XML","dmlicensedata.geo")
+    importXML(xml_folder + r"\ACT_7095_5539_8_1_2020_8_31_2020.XML","dmlicensedata.act")
+    importXML(xml_folder + r"\ENV_7095_5539_8_1_2020_8_31_2020.XML","dmlicensedata.env")
+    importXML(xml_folder + r"\FEA_7095_5539_8_1_2020_8_31_2020.XML","dmlicensedata.fea")    
+    print("Completed importing XML files to Database")
+    
