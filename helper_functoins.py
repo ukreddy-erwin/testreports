@@ -7,10 +7,22 @@ import datetime,logging
 
 #pip3 install mariadb
 
+from tkinter import Tk
+from tkinter.filedialog import askdirectory
+
+#https://stackoverflow.com/questions/59018846/hide-tk-window-when-using-filedialog
+def get_path():
+    root = Tk()
+    root.withdraw()
+    path = askdirectory()
+    root.destroy()
+    return path
+
 logging.basicConfig(filename='DBImport_Log.log',level=logging.INFO)
 def WriteLog(str1):
     d = datetime.datetime.now()
-    print(d," : ",str1)
+    #print(d," : ",str1)
+    print(str1)
     logging.info(str(d)+" : "+str1)
 
 def process_path(sFile):
@@ -176,7 +188,7 @@ def processXML(sFolder,sType):
             updateXML(element,"dmlicensedata."+sType)
 
 if __name__=="__main__":
-    xml_folder = r"C:\temp"
+    xml_folder = get_path() #r"C:\temp"
     xml_folder = removeLastSlash(xml_folder)
     WriteLog("Started Preprocessing XML files")
     processXML(xml_folder,"GEO")
