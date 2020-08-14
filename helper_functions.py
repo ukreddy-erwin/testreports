@@ -4,7 +4,7 @@ import mariadb
 import glob
 import sys
 
-import datetime,logging
+import datetime,logging,json,os
 
 #pip3 install mariadb
 
@@ -148,14 +148,23 @@ def updateXMLFEA(filename):
     with open(filename,"wb") as fileupdate:
         tree.write(fileupdate)
 
+def readDBDetails():
+    script = os.path.dirname(os.path.realpath(__file__) )
+    print("SCript path:", script) 
+    with open(script + '/DBDetails.json') as f:
+        data = json.load(f)
+        return data
+
+
 def importXML(xml_file,table):
     try:
         xml_file = process_path(xml_file)
+        dbdata = readDBDetails()
         conn = mariadb.connect(
-            user="admin",
-            password="password",
-            host="10.1.85.80",
-            database="dmlicensedata")
+            user=dbdata["user"],#"admin",
+            password=dbdata["password"],
+            host=dbdata["host"],#"10.1.85.80",
+            database=dbdata["database"])#"dmlicensedata")
         cur = conn.cursor() 
 
         #insert information 
@@ -179,14 +188,15 @@ def processXML(sFolder,sType):
     elements = glob.glob(sFolder+"\\"+ sType +"_*.xml")
     WriteLog("files found with " + sType + ":"+str(len(elements)))
     print(elements)
+    dbdata = readDBDetails()
     for element in elements:
         if len(element)> len(element.replace(" ", "")):
             WriteLog("Error: Spaces in the filename are not supported")
         else:
             element = process_path(element)
             WriteLog("Processing:" + element)
-            importXML(element,"dmlicensedata."+sType)
-            updateXML(element,"dmlicensedata."+sType)
+            importXML(element,(dbdata["database"])+"."+sType)
+            updateXML(element,(dbdata["database"])+"."+sType)
 
 if __name__=="__main__":
     xml_folder = get_path() #r"C:\temp"
